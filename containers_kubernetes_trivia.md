@@ -88,7 +88,48 @@
 ### What are the Architectural flow of the K8's Architecture?
 
 ### What are the basic components in the VPC created by default?
-- Public Subnet
+- Public Subnet <Divide it into different avalibility zones>
 - Private Subnet (Optional)
 - Route Table
 - Internet Gateway
+
+### Benefits of Python
+- Does not need to compile any code (It acts as both the High level language and the low level language) to interact with Kernel
+- Python is an Interpreted language so no need to convert it to the low level language
+- In Java it needs to be converted to .class(acting as the low level langauage) to interact with Kernal
+- Docker File for the interpreted language will be different from that of the compiled code language.
+- Python Docker File will not involve any build step in the Docker File
+- In Java I suppose we need to first have a build (.war,.jar,.ear file) and then use it in the Docker File.
+
+### Docker Architecture
+
+_ To build the Docker File 
+- **Docker File** will be made with the instrcutions provided on Docker Client(Docker Client is nothing but the CLI)
+  - 15-20 Instructions
+  - Consists of Commands and Argunments 
+  - Each line in Docker File is considered as Layers
+  - Docker image is nothing but the bundling of all the Layers in a bundle in the Docker File. 
+
+  ## Line by Line Roles of Docker File
+  - GO and Download the OS 
+  - Follow the instrcution's Provided
+  - Other Meta Layers
+  - ENDPOINT - Last Line gives how to start the application (Known as **ENTRYPINT/CMD**)
+  
+  ## Flow of Docker File (Internal Details)
+  - The image created would only be the **Read Only Object** (Nobody should be able to manipulate the image once created)
+  - When the Docker Image is shared it should only care about the Endpoint as all other above layers are already inculcated(hardcoded) in the image.
+  
+  - When the image started it creates a virtual environment that is called as **Docker Container**
+  - Docker Container will contains all the context of Docker File.
+  - Docker Container will run the Entrypoint to create the files, perform operations, expose the network according to network configurations.
+  - **NOTE** : Docker Container are also **READ ONLY** (Cannot manipulate a Docker Container) ; **If needed that kind of changes only can be done while creating the Docker File.** 
+  - **NOTE** : Read ONLY also known as Ephemeral
+
+## Whose responisbility is to write the DockerFile?
+- It is the responsibility of the Developer and the Devops Engineer to write the Dockerfile
+- They should work in the collabaration (insync) with each other.
+  
+
+## Prerequiste to Docker Architecture
+![Alt text](image.png)  
