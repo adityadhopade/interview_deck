@@ -129,7 +129,46 @@ _ To build the Docker File
 ## Whose responisbility is to write the DockerFile?
 - It is the responsibility of the Developer and the Devops Engineer to write the Dockerfile
 - They should work in the collabaration (insync) with each other.
+- Generating Docker File is manual effort although there are automation tools for developing the DockerFile(as projects are not matured enough)
+- We can ask the chatgpt to identify the loopholes in the Docker Files.
+
+
   
 
 ## Prerequiste to Docker Architecture
 ![Alt text](image.png)  
+
+## What is Docker Daemon ?
+- Docker Host actually consist of Docker Daemon and in turn **it manages the container runtime.**
+- Docker Daemon can have the Docker Client running(as its a CLI for Docker).
+- All the containers and Images will run in the Docker Daemons.
+
+- Docker Client actually runs the commands ; the actual flow starts in the daemon; Client actually connects to the Daemons; all the containers and Images will run in the Docker Daemons.
+
+- When hitting the docker command it will not run if only docker client is installed it needs both the docker client and the docker daemon to be installed in it.
+
+- Docker is not a replacement of anything; It is concept of acontainerization
+
+## Docker Internals for namespaces and Cgroups
+![Alt text](image-1.png)
+
+## TO cehk the logs of Docker ?
+- docker logs -f <container id>
+
+## Some important docker commands ?
+- docker container ls / docker container ps - To show the running docker containers
+- docker containers ls -a / docker container ps -a - To show the all the containers (running and stopped)
+- docker build -t <Image Name to be created> /path/to/the/dockerfile
+- docker pull nginx - to pull the nginx image(it will not run this)
+- docker run -p 9000:9000 nginx -To run the nginx image; mapping the PORT 9000 of the Host(LHS) to the PORT 9000 of the Container (RHS).
+- docker exec -it <container_id> bash - To get inside the container and interact with it using the bash shell.
+- docker stop <container_id> to stop the container 
+- docker rm <container_id> only after stopping the container we can remove the container
+- docker rmi <image name> only after removing all the containers asosiated with the docker image we can delete the docker image
+- docker system prune -  will clean up any resources — images, containers, volumes, and networks — that are dangling (not tagged or associated with a container):
+- docker rmi $(docker images -a -q) - To remove all the images
+- docker rm $(docker ps -a -q) - To remove all the containers
+- docker rm $(docker ps -a -f status=exited -q) - To remove all the containers with the status as exited.
+- docker volume prune - TO remove all the volumes which are  dangling (not assosiated with anybody)
+- docker rm -v container_name - To remove a container and its volume
+
