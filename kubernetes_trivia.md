@@ -1,0 +1,254 @@
+### Kubernetes Trivia
+
+## WHy go with K8 rather than Docker Compose ?
+
+- In Docker Compose; if our container goes down it will not automatically start the container
+- We need to configure our own load balancer mechanism in the compose whereas it is handled very easily in the Kubernetes Services of Load Balancer.
+- Docker Compose we need to manage the scaling manually but in the Kubernetes we can manage it by using the controllers(replicaset) for that matter.
+- DNS mapping not availavble by default in Compose
+- K8's easily manages the Current vs Desired state with the help of Controllers athat was not present in the Compose.
+
+## K8's basics
+
+- This is how our application lies
+  ![K8 Flow](image-17.png)
+
+- Main purpsoe of K8 is to expose our PODS to the external workld with best security pratices possible
+- The control of K8's comes from the POD (smallest level that we can control in K8s)
+- Pod can contain one or multiple containers. Preffered is one container in one pod.
+- Pod if goes down cannot restart on its own it needs the help of controllers to get them restarted.
+- Controllers are the ones who takes the responsibility of maintaining the POD's.
+- Whenever external user wants to connect to our Pod it can connect via the K8's services like
+  - a> ClusterIp( Default; For internal Communication of Pods),
+  - b> NodePort (Preffered for Communication within the same VPC).
+  - c> LoadBalancer (Depends on the Cloud Provider for the External Communication)
+  - d> Ingress (Most widely used in the Industry; it maintains a route table insiide it for the path based routing)
+  - e> External Name (Newly intreoduced not widely used)
+
+## Some commands
+
+```
+alias k="kubectl" # alias k as kubectl
+
+k get pods / k get po # get pods
+
+k desrcibe po <pod name> # To get more details about the PODS
+
+k edit po <pod name> # To edit the details of the PODS
+
+# Create the pod named as "nginx-pod" with the image as "nginx" getting our o/p in yaml format and dry running our code (it will not create the pod it will show what wuill be the content of the pod if it gets created)
+
+k run nginx-pod --image=nginx -o yaml --dry-run=client
+
+k create pod nginx-pod --image=nginx -o yamkl --dry-run=client
+
+# To get all the api-reosurces
+k api-resources
+
+# from here we can retrieve the shortnames
+
+#It gives us IP important in context of kubernetes
+k get po - o wide
+
+```
+
+---
+
+### Status of POD
+
+- PEnding - (The pod has been accepted by the Kubernetes system, but one or more of its containers are not yet running.)
+- Running - (All containers in the pod are up and running.)
+- Succeeded - (All containers in the pod have successfully terminated, and won't be restarted.)
+- Failed - ( All containers in the pod have terminated, and at least one container has terminated in failure.)
+- Unknown - (The state of the pod could not be determined.)
+
+---
+
+### What is PRobe in context to K8 ?
+
+- Probes are mechanism to check the status and health of the container within the POD
+- USed for improving the reliability and resilience of the application.
+- Probes are generally identified into two types they are
+
+  - `Liveliness Probe` -
+
+    - Purpose: Is to check the application within the container is alive and healthy also checks if it is functioning as expected.
+    - Working: Kubernetes actually periodically executes the commands or HTTP request defined in the POD Specification. If probe succeds then the container is considered healthy if not (application is considered in the bad state). Kubernetes restarts the container in attempt to recover it
+
+    ```
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+      initialDelaySeconds: 3
+      periodSeconds: 3
+
+    ```
+
+  - `Readiness Probe` -
+
+    - Purpose: The readiness probe is used to determine if a container is ready to accept incoming network traffic. It signals whether the container is in a state to serve requests.
+    - Working: Similar to the liveness probe, the readiness probe executes a command or HTTP request at specified intervals. If the probe succeeds, the container is considered ready to receive traffic. If it fails, the container is marked as not ready, and it is removed from the service's load balancer until it becomes ready again.
+
+    ```
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: 8080
+      initialDelaySeconds: 5
+      periodSeconds: 5
+    ```
+
+![Alt text](image-18.png)
+
+-
+
+### Why some resources in the API Version set as v1 and apps/v1 ?
+
+- The use of different API versions often signifies the evolution and changes in the Kubernetes API. When Kubernetes introduces new features, it may include those features in a new API version to maintain backward compatibility with existing resources.
+- The API version indicates the format of the resource definition and the set of fields it supports.
+- `apps/v1` - It represents especially those related to certain higher-level controllers and objects, might use a different API version
+- `v1` - v1 API version often refers to core Kubernetes resources, such as Pods, Services, and ConfigMaps.
+- It's important to note that Kubernetes continues to evolve, and new API versions may be introduced to accommodate changes and improvements in the platform.
+
+---
+
+### What are serivce in K8 ?
+
+- Service is a way that provides a endpoint of PODs.
+- Service provides the `service discovery` to the PoDS
+- The Pods can be easily idenified with the help of selector `labels` in the PODs which helps in grouping the PODs.
+  - `Service Discovery` - idenify the PODs without having to remeber its IP with the concept of Namespace
+  - eg. service.namespace.cluster.svc.local becomes like the Doman name.
+- Even if pods restart then it can easily identify the pods with the selector labels and url in this format `service.namespace.cluster.svc.local`
+- Services are classified into multiple types
+  - a> ClusterIp( Default; For internal Communication of Pods),
+  - b> NodePort (Preffered for Communication within the same VPC).
+  - c> LoadBalancer (Depends on the Cloud Provider for the External Communication)
+  - d> Ingress (Most widely used in the Industry; it maintains a route table insiide it for the path based routing)
+  - e> External Name (Newly intreoduced not widely used)
+
+---
+
+### What are the Endpoints in K8s?
+
+- Endpoints assosiate POD's to the services.
+
+- Pods have Ip addresses
+- Service has a Ip address and a PORT
+- Also service gets and URL like service_name.namespace.cluster.service.local. Thse service_name and namespace will keep on changing.
+- eg> my-app.default.cluster.svc.local
+
+- If a pod goes down then it should be updated in Loadbalancer; so LB should not route the traffic to the pod which is down. Whow would manage that ? (Service does not do that)
+- Service jobs is to identify what traffic is coming in and what endpoints need to mention.
+
+- Somebody in the middle is responsible for one to one mapping of list of endpoints; These component is called as `Endpoints`.
+- It is similar to nginx.config folder.
+- We do not need to explicitly create the Endpoint as we have done for service and deployments.
+- Whenever a new pod is added the entry will be added into the table and same if pod gets down then the entry in the table also gets deleted.
+  ![Alt text](image-19.png)
+
+- As a user we will hit the service<svc> on the serive url whihc internally translates to IP Address of the service (Service Discovery) looks for Endpoints.
+
+- Service Endpoint also acts as a Controller.
+- Endpoinst are system created as oppose to services, deployments etc.
+- Pod mapping is done with the help of Endpoint and not the Service.
+
+---
+
+### What happens if we delete the ALL pods which are linked to a service ?
+
+- Service will not tell us that it is broken.
+- We have to manually scavenge the Endpoints;
+- The endpoint will show us none in the Endpoints if the Pods are not available.
+
+---
+
+### What are Controllers ?
+
+- Whenever a manual effort gets automated in a way that system is taking care of Operation it is known as Controller.
+
+---
+
+### POD TO POD Communication
+
+- For POD to POD communication we need to have the `Route`(Permission) and `Address(IP)` need to have the Route as well as the address.
+- Now Address cab be of 2 types ==> Private and Public Address
+- In the earlier setup we have managed to keep it in the CNI Range i.e. the Private IP Range.
+- If a external user wants to connect the private Ip range it cannot connect to it as private ip ranges are not accessible outside the cluster.
+- As the private IP are not resolvable ; it can resolve only by Gateway of the Infrastructure. eg(10.10.9.8 )
+-
+
+### Types of Services in K8
+
+`ClusterIP` -
+
+- It is the default service type
+- Used for internal communication of the PODs
+  ![Alt text](image-20.png)
+
+---
+
+`NodePort`
+
+- Simplest way to expose application to the outside world.
+- It is use to connect the external user to the Nodes ==> then to the PODs
+- It would need a gateway to communicate with the Nodes and then it connects to the Nodes via IP Address / DNS Names via that to the PODs.
+- Expose the service by the external world by using Ip or the DNS to the external world.
+- Target Port is the PORT of the PODS
+- PORT is the POrt of the Node from where the external user needs to connect
+- It is best suitable for managed VPC or VPN Infrastructure.
+- ![Alt text](image-21.png)
+
+---
+
+`Load Balancer`
+
+- When having Load balancer Service of 3rd party Component is needed here.
+- It will assosiate to the POD and the Cloud Vendor[MOST NEEDED].
+- To make POD public we need to have something as PUblic needs capability of Hosting.
+- This Load Balancer service is Expensive ; as we need to have Domains.
+- Load Balancer Service will not run unless we have the dedicated controllers for them.
+  ![Alt text](image-22.png)
+
+---
+
+### Why to go with Ingress ?
+
+- For every module we can have a load balancer assosiated with it.
+- This will be pretty expensive affair to manage LB for each module and also we will need the service for each module.
+  ![Alt text](image-23.png)
+
+---
+
+`Ingress`
+
+- Most widely used and popular among all the K8 Services.
+- It is also a paid service (but a workaround to add our Ip in the host folder)
+- In Ingress we maintain a table consisting of the Rules and Destinations in a Ingress Resource.
+- Entire traffic will be routing will be decided by the Rules present in the Ingress Resources where to navigate further.
+
+- K8 does not comes with the default installation of Ingress Controllers
+- Nginx Controller is an flavour of Ingress Controllers.
+- Ingress gives an idea about what is happening inside the cluster.
+
+![Alt text](image-24.png)
+
+---
+
+### LAYER 7 vs Layer 4 Routing ?
+
+`Layer 7`
+
+- Layer 7 is the Appplication layer in OSI model
+- When traffic is able to the Route at Layer 7 then it hits at Application layer knopwn as App Layer Routing
+- Layer 7 is based on the `path based routing`
+- Layer 7 has the affinity towards the API Endpoints aka Layer7 understands what the Endpoints actually are and routes according to the API endpoints.
+
+`Layer 4`
+
+- It is network Layer Routing.
+- Layer 4 based routing is performed on the basis of the IP Addresses; it cannot understand the path based routing.
+- As there is no concept of application in the Layer4
+
+- `External Name`
