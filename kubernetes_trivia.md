@@ -6,18 +6,18 @@
 - We need to configure our own load balancer mechanism in the compose whereas it is handled very easily in the Kubernetes Services of Load Balancer.
 - Docker Compose we need to manage the scaling manually but in the Kubernetes we can manage it by using the controllers(replicaset) for that matter.
 - DNS mapping not availavble by default in Compose
-- K8's easily manages the Current vs Desired state with the help of Controllers athat was not present in the Compose.
+- K8's easily manages the Current vs Desired state with the help of Controllers that was not feature in the Compose.
 
 ## K8's basics
 
 - This is how our application lies
   ![K8 Flow](image-17.png)
 
-- Main purpsoe of K8 is to expose our PODS to the external workld with best security pratices possible
-- The control of K8's comes from the POD (smallest level that we can control in K8s)
-- Pod can contain one or multiple containers. Preffered is one container in one pod.
-- Pod if goes down cannot restart on its own it needs the help of controllers to get them restarted.
-- Controllers are the ones who takes the responsibility of maintaining the POD's.
+- Main purpsoe of `K8 is to expose our PODS to the external workld with best security pratices possible`
+- The granular control of K8's comes from the POD (smallest level that we can control in K8s)
+- Pod can contain one or multiple containers. [Preffered is one container in one pod.]
+- [NOTE] Pod if goes down cannot restart on its own it needs the help of controllers to get them restarted.
+- `Controllers` are the ones who takes the responsibility of maintaining the POD's.
 - Whenever external user wants to connect to our Pod it can connect via the K8's services like
   - a> ClusterIp( Default; For internal Communication of Pods),
   - b> NodePort (Preffered for Communication within the same VPC).
@@ -42,10 +42,8 @@ k run nginx-pod --image=nginx -o yaml --dry-run=client
 
 k create pod nginx-pod --image=nginx -o yamkl --dry-run=client
 
-# To get all the api-reosurces
+# To get all the api-reosurces (from here we can retrieve the shortnames)
 k api-resources
-
-# from here we can retrieve the shortnames
 
 #It gives us IP important in context of kubernetes
 k get po - o wide
@@ -56,7 +54,7 @@ k get po - o wide
 
 ### Status of POD
 
-- PEnding - (The pod has been accepted by the Kubernetes system, but one or more of its containers are not yet running.)
+- Pending - (The pod has been accepted by the Kubernetes system, but one or more of its containers are not yet running.)
 - Running - (All containers in the pod are up and running.)
 - Succeeded - (All containers in the pod have successfully terminated, and won't be restarted.)
 - Failed - ( All containers in the pod have terminated, and at least one container has terminated in failure.)
@@ -64,16 +62,16 @@ k get po - o wide
 
 ---
 
-### What is PRobe in context to K8 ?
+### What is Probe in context to K8 ?
 
 - Probes are mechanism to check the status and health of the container within the POD
-- USed for improving the reliability and resilience of the application.
+- Used for improving the reliability and resilience of the application.
 - Probes are generally identified into two types they are
 
   - `Liveliness Probe` -
 
-    - Purpose: Is to check the application within the container is alive and healthy also checks if it is functioning as expected.
-    - Working: Kubernetes actually periodically executes the commands or HTTP request defined in the POD Specification. If probe succeds then the container is considered healthy if not (application is considered in the bad state). Kubernetes restarts the container in attempt to recover it
+    - **Purpose**: Is to check the application within the container is alive and healthy also checks if it is functioning as expected.
+    - **Working**: Kubernetes actually periodically executes the commands or HTTP request defined in the POD Specification. If probe succeds then the container is considered healthy if not (application is considered in the bad state). Kubernetes restarts the container in attempt to recover it
 
     ```
     livenessProbe:
@@ -87,8 +85,8 @@ k get po - o wide
 
   - `Readiness Probe` -
 
-    - Purpose: The readiness probe is used to determine if a container is ready to accept incoming network traffic. It signals whether the container is in a state to serve requests.
-    - Working: Similar to the liveness probe, the readiness probe executes a command or HTTP request at specified intervals. If the probe succeeds, the container is considered ready to receive traffic. If it fails, the container is marked as not ready, and it is removed from the service's load balancer until it becomes ready again.
+    - **Purpose**: The readiness probe is used to determine if a container is ready to accept incoming network traffic. It signals whether the container is in a state to serve requests.
+    - **Working**: Similar to the liveness probe, the readiness probe executes a command or HTTP request at specified intervals. If the probe succeeds, the container is considered ready to receive traffic. If it fails, the container is marked as not ready, and it is removed from the service's load balancer until it becomes ready again.
 
     ```
     readinessProbe:
@@ -116,9 +114,9 @@ k get po - o wide
 ### What are serivce in K8 ?
 
 - Service is a way that provides a endpoint of PODs.
-- Service provides the `service discovery` to the PoDS
+- Service provides the `service discovery` to the PODS
 - The Pods can be easily idenified with the help of selector `labels` in the PODs which helps in grouping the PODs.
-  - `Service Discovery` - idenify the PODs without having to remeber its IP with the concept of Namespace
+  - `Service Discovery` - idenify the PODs without having to remmber its IP with the concept of Namespace
   - eg. service.namespace.cluster.svc.local becomes like the Doman name.
 - Even if pods restart then it can easily identify the pods with the selector labels and url in this format `service.namespace.cluster.svc.local`
 - Services are classified into multiple types
@@ -139,27 +137,66 @@ k get po - o wide
 - Also service gets and URL like service_name.namespace.cluster.service.local. Thse service_name and namespace will keep on changing.
 - eg> my-app.default.cluster.svc.local
 
-- If a pod goes down then it should be updated in Loadbalancer; so LB should not route the traffic to the pod which is down. Whow would manage that ? (Service does not do that)
+- If a pod goes down then it should be updated in Loadbalancer; so LB should not route the traffic to the pod which is down. Who would manage that ? (Service does not do that)
 - Service jobs is to identify what traffic is coming in and what endpoints need to mention.
 
 - Somebody in the middle is responsible for one to one mapping of list of endpoints; These component is called as `Endpoints`.
 - It is similar to nginx.config folder.
-- We do not need to explicitly create the Endpoint as we have done for service and deployments.
+- **[NOTE]** We do not need to explicitly create the Endpoint (auto-created) as we have done for service and deployments.
 - Whenever a new pod is added the entry will be added into the table and same if pod gets down then the entry in the table also gets deleted.
   ![Alt text](image-19.png)
 
-- As a user we will hit the service<svc> on the serive url whihc internally translates to IP Address of the service (Service Discovery) looks for Endpoints.
+- As a user we will hit the service<svc> on the serive url which internally translates to IP Address of the service (Service Discovery) looks for Endpoints.
 
 - Service Endpoint also acts as a Controller.
-- Endpoinst are system created as oppose to services, deployments etc.
-- Pod mapping is done with the help of Endpoint and not the Service.
+- Endpoints are system created as oppose to services, deployments etc.
+- **[NOTE]** Pod mapping is done with the help of Endpoint and not the Service.
+
+```
+# To get the list of Endpoints
+kubectl get endpoints
+
+kubectl get ep
+```
+
+---
+
+### DNS vs Service Discovery
+
+| Feature            | DNS (Domain Name System)                                                                          | Service Discovery                                                                                                    |
+| ------------------ | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| **Purpose**        | Translates domain names to IP addresses and vice versa.                                           | Allows dynamic discovery of services in a network.                                                                   |
+| **Functionality**  | Resolves domain names to IP addresses. Provides a decentralized naming system.                    | Enables services to register their availability and discover the location of other services dynamically.             |
+| **Use Cases**      | Mainly used for host name resolution on the internet.                                             | Crucial in distributed systems, microservices architectures, and dynamic computing environments.                     |
+| **Dynamic Nature** | Typically static mappings that change infrequently.                                               | Dynamic registration and discovery of services to accommodate changes in the network or system.                      |
+| **Communication**  | Provides a way for humans to access resources using human-readable names.                         | Facilitates communication between services within a network, allowing them to discover and interact with each other. |
+| **Examples**       | Translates www.example.com to an IP address.                                                      | Allows a service to discover the location (IP address and port) of another service in a microservices architecture.  |
+| **Dependency**     | Often used as the initial step in service discovery to resolve initial hostnames to IP addresses. | Relies on DNS for name resolution in some cases.                                                                     |
+
+---
+
+### Endpoints vs Services
+
+| Feature               | Endpoints (Kubernetes)                                                                       | Services (Kubernetes)                                                                                    |
+| --------------------- | -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| **Definition**        | A set of backend Pods exposed through a Service.                                             | An abstraction that defines a logical set of Pods and a policy by which to access them.                  |
+| **Scope**             | Represents individual Pods providing the actual application functionality.                   | Represents a higher-level abstraction that groups multiple Pods and provides a stable network endpoint.  |
+| **Functionality**     | Directly corresponds to backend application functionality, often specific to a microservice. | Acts as a stable virtual IP and port that can route traffic to one or more Pods.                         |
+| **Granularity**       | Fine-grained, dealing with individual Pod instances.                                         | Coarse-grained, dealing with a group of related Pods.                                                    |
+| **Usage**             | Provides a direct interface to the functionality of a single Pod or set of similar Pods.     | Offers a single entry point for accessing multiple Pods, providing load balancing and service discovery. |
+| **Example**           | `my-app-pod-1`, `my-app-pod-2`                                                               | `my-app-service`                                                                                         |
+| **Dependency**        | Associated with a specific workload, typically a Pod or set of similar Pods.                 | Represents a higher-level abstraction that may depend on one or more Pods.                               |
+| **Scalability**       | Scaling is done at the Pod level to handle increased demand for specific functionalities.    | Scaling involves replicating Pods and maintaining service availability and load balancing.               |
+| **Relationship**      | Directly associated with the backend implementation of a specific functionality.             | Acts as an abstraction layer, decoupling consumers from the specifics of Pod implementations.            |
+| **Abstraction Level** | Low-level, dealing with individual Pod instances and their network accessibility.            | Higher-level, providing a stable and abstracted entry point to access related Pods.                      |
+|                       |
 
 ---
 
 ### What happens if we delete the ALL pods which are linked to a service ?
 
 - Service will not tell us that it is broken.
-- We have to manually scavenge the Endpoints;
+- We have to manually scavenge the Endpoints in the endpoints;
 - The endpoint will show us none in the Endpoints if the Pods are not available.
 
 ---
@@ -172,11 +209,11 @@ k get po - o wide
 
 ### POD TO POD Communication
 
-- For POD to POD communication we need to have the `Route`(Permission) and `Address(IP)` need to have the Route as well as the address.
-- Now Address cab be of 2 types ==> Private and Public Address
-- In the earlier setup we have managed to keep it in the CNI Range i.e. the Private IP Range.
-- If a external user wants to connect the private Ip range it cannot connect to it as private ip ranges are not accessible outside the cluster.
-- As the private IP are not resolvable ; it can resolve only by Gateway of the Infrastructure. eg(10.10.9.8 )
+- For POD to POD communication we need to have the `Route(Permission)` and `Address(IP)` need to have the Route as well as the address.
+- Now Address can be of 2 types ==> Private and Public Address
+- In the earlier setup we have managed to keep it in the CNI Range of the Flannel i.e. the Private IP Range.
+- If a external user wants to connect the private IP range it **CANNOT** connect to it as private ip ranges are not accessible outside the cluster.
+- As the private IP are not resolvable ; it can resolve only by Gateway of the Infrastructure which will connect to the Nodes > Pods > Application. eg> of Private IP Range (10.10.9.8)
 -
 
 ### Types of Services in K8
@@ -186,6 +223,7 @@ k get po - o wide
 - It is the default service type
 - Used for internal communication of the PODs
   ![Alt text](image-20.png)
+- They can connect just via localhost:port
 
 ---
 
@@ -193,18 +231,21 @@ k get po - o wide
 
 - Simplest way to expose application to the outside world.
 - It is use to connect the external user to the Nodes ==> then to the PODs
-- It would need a gateway to communicate with the Nodes and then it connects to the Nodes via IP Address / DNS Names via that to the PODs.
+- It would need a gateway to communicate with the Nodes and then it connects to the Nodes via IP Address / DNS Names via that then to the PODs.
 - Expose the service by the external world by using Ip or the DNS to the external world.
-- Target Port is the PORT of the PODS
-- PORT is the POrt of the Node from where the external user needs to connect
-- It is best suitable for managed VPC or VPN Infrastructure.
+
+`Terminologies to understand in NodePort`
+
+- `Target Port` is the PORT of the PODS
+- `PORT` is the Port of the Node from where the external user needs to connect
+- It is best suitable for Managed VPC or VPN managed Infrastructure.
 - ![Alt text](image-21.png)
 
 ---
 
 `Load Balancer`
 
-- When having Load balancer Service of 3rd party Component is needed here.
+- When having Load balancer Service of 3rd party Cloud Provided Component is needed here.
 - It will assosiate to the POD and the Cloud Vendor[MOST NEEDED].
 - To make POD public we need to have something as PUblic needs capability of Hosting.
 - This Load Balancer service is Expensive ; as we need to have Domains.
