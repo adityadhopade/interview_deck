@@ -4,20 +4,20 @@
 - The Docker Compose the Service is wrapped around the Container.
 - ![K8_Compose](image-2.png)
 
-- In realtime sceanrio we will have multiple containers at scale (Replication of the containers for multiple applications; depending on requirement)
+- In real-time Scenario we will have multiple containers at scale (Replication of the containers for multiple applications; depending on requirement)
 - So complexity starts to increase => We need to manage the routing.
 - Docker solves using the 2 solutions in Docker
-  - Docker Compose (Provides structure to Docker; with the help references of Services)
-  - Docker Swarm (Competetor to K8)
+  - Docker Compose (Provides structure to Docker; with the help of references of Services)
+  - Docker Swarm (Competitor to K8)
 
 ### Docker Compose:
 
-- Docker Compose will still use the Docker commands; but the Docker Compose Services will be the way to talk to Docker Daemon.
-- When you call somebody on the basis of names in the container; we call it as the service. As name remains the same and Private IP changes after container gets down and restarts.
+- Docker Compose will still use the Docker commands, but the Docker Compose Services will be the way to talk to Docker Daemon.
+- When you call somebody on the basis of names in the container; we call it as the service. As name remains the same and the Private IP changes after the container gets down and restarts.
 
 ### Linmitation of Docker
 
-- Run a container for python flask app(9000) and nginx(80) and try to connect for both of them as they lay in the same network(bridge)
+- Run a container for the python flask app(9000) and nginx(80) and try to connect for both of them as they lay in the same network(bridge)
 - Do it using curl ==>
 
 ```
@@ -28,18 +28,18 @@ curl -v <IP of Flask>:<Port on whihc is hosted 9000>
 
 ![Alt text](image-3.png)
 
-- But in the above frame there is hard assosiation of IP; when container resarts we have to manually change / maintain the IP's in it (refactor)
+- But in the above frame there is hard association of IP; when the container restarts we have to manually change / maintain the IP's in it (refactor)
 
-Refer demos in session 1
+Refer to demos in session 1
 
-### What if we refer via the container_name ? [MUST READ]
+### What if we refer via the container_name? [MUST READ]
 
 - But instead of IP if give the name of the container it will not be able to connect.
 
 - **Docker does not entertain the concept of Service Discovery**
 - Docker understands the concept of Service Inherently; even though it supports it.
-- **Docker understands the name, network and gateway; but it will not entertain the communication over the Services.**
-- So refactoring and managemnt becomes a tedious task.
+- **Docker understands the name, network, and gateway; but it will not entertain the communication over the Services.**
+- So refactoring and management becomes a tedious task.
 
 ```
 curl: (6) Could not resolve host: modest_booth
@@ -56,10 +56,10 @@ docker network create local_network
 
 ```
 
-- It means the communication from one container to another should not stop at any level now.(as we have scope=local)
-- But as **_Concept of Service is not inherent to Docker so we need to explicitly need to create the network; then Docker realises and allows us the DNS mapping (Name to IP Mapping)_**
+- It means the communication from one container to another should not stop at any level now. (as we have scope=local)
+- But as **_Concept of Service is not inherent to Docker we need to explicitly need to create the network; then Docker realizes and allows us the DNS mapping (Name to IP Mapping)_**
 
-- Again restrat the containers with the name and ports; Add the network (local_network that we created just now)
+- Again restart the containers with the name and ports; Add the network (local_network that we created just now)
 
 ```
 docker run --network local_network --name nginx -d -p 80:80 nginx
@@ -71,28 +71,28 @@ docker run --network local_network --name flask -p 9000:9000 myflaskapp
 
 ![Alt text](image-4.png)
 
-### What if we need to have the network restrictions in place for the containers in the same neytwork.
+### What if we need to have the network restrictions in place for the containers in the same network.
 
 - eg> Only the backend should talk to the DB but if the UI wants to connect directly to DB it will restrict it.
-- For this we need to manage multiple layers of Networks to restrict it. i.e. Concept Of Ingress and Egress comes into the Play here **(Concepts of Kubernetes)**
-- The service filtering comes into play here and its covered in Docker Compose
+- For this we need to manage multiple layers of Networks to restrict it. i.e. Concept Of Ingress and Egress comes into Play here **(Concepts of Kubernetes)**
+- The service filtering comes into play here and it's covered in Docker Compose
 - Docker does not provide the concept of **Load Balancing.**
-- So we need to manually managed the entries of applications (its gateway and the IPAddresses)
+- So we need to manually manage the entries of applications (their gateway and the IP-addresses)
 
-### How will UI container decide where to go to i.e. in app 0, app 1 or app 2 contaier ?
+### How will the UI container decide where to go to i.e. in app 0, app 1, or app 2 container?
 
 - There needs to be a controller suggesting where to go due to some reasons.
-- Docker there is no way that it will give logic out of box for suggesting the containers where to connect to the next container.
+- Docker there is no way that it will give logic out of the box for suggesting the containers where to connect to the next container.
 
-### Why Docker to DockerCompose then ?
+### Why Docker to DockerCompose then?
 
 - Docker works best in isolation.
-- Every application needs to be containerised but every conatiner cannot be deployed intop the production because of the flaws of Docker discussed above.
+- Every application needs to be containerized but every container cannot be deployed into the production because of the flaws of Docker discussed above.
 -
 
 ### Install Docker Compose
 
-Refer Demos in session 2; part 1
+Refer to Demos in session 2; part 1
 
 ```
 sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
@@ -117,7 +117,7 @@ docker rmi -f $(docker images -aq)
 
 ```
 
-In docker compose.yaml
+In docker-compose.yaml
 
 ```
 version: '3.2'
@@ -155,7 +155,7 @@ docker compose ps # will give the services running via the docker compose
 
 ![Alt text](image-5.png)
 
-- Now here if I want to build the image I do not need to build them seprately.
+- Now here if I want to build the image I do not need to build them separately.
 
 - No need to Update them seprately also
   ![Alt text](image-6.png)
@@ -189,15 +189,15 @@ docker-compose up -d --scale base=4
 
 ![Alt text](image-8.png)
 
-- It will not run as the PORTS will get occupied by the first instance of base; when scaled it will also try to run on the same PORT but as we know the port once allocated cannot be ocupied by other scaled instances.
+- It will not run as the PORTS will get occupied by the first instance of base; when scaled it will also try to run on the same PORT but as we know the port once allocated cannot be occupied by other scaled instances.
 
 ```
-# Stop docker compose
+# Stop docker-compose
 
 docker-compose stop
 ```
 
-WE need to make changes in the docker compose.yml file
+We need to make changes in the docker compose.yml file
 
 ```
 version: '3.2'
@@ -263,7 +263,7 @@ docker compose ps
 
 - Resolves scaling Problem
 
-### But here PORT numbers for the containers are given randomly ; so for every docker compose restart our ports will change so it will create a havoc on Network Managers.
+### But here PORT numbers for the containers are given randomly; so for every docker compose restart our ports will change so it will create havoc on Network Managers.
 
 - Workaround for that will be just like
 
@@ -317,7 +317,7 @@ services:
 ~
 ```
 
-In this context of Docker-compose.yml file we hae the HARD scaling enable and **BUT no Auto-scaling is available as we need to remap it at the service.**
+In this context of Docker-compose.yml file we have the HARD scaling enabled and **BUT no Auto-scaling is available as we need to remap it at the service.**
 
 ```
 # Then run
@@ -333,7 +333,7 @@ docker compose ps
 
 ![Alt text](image-12.png)
 
-- Now if we change the oort for the base service it should identify the production and the base version.
+- Now if we change the order for the base service it should identify the production and the base version.
 
 ```
 localhost:9000 #PRoduction Version
@@ -348,11 +348,11 @@ localhost:9002 #Base Version
 
 ![Alt text](image-14.png)
 
-## But how will Docker Compose managed the Load Balancing ?
+## But how will Docker Compose manage the Load Balancing?
 
-- We need tio create our Load Balancer from the scratch.
-- For that we have configured our own nginx load balancer and have made changes in the nginx.conf file (By removing the default.conf from the orignal nginx LB)
-- Refering the docker file it looks like
+- We need to create our Load Balancer from scratch.
+- For that we have configured our own nginx load balancer and have made changes in the nginx.conf file (By removing the default.conf from the original nginx LB)
+- Referring the docker file it looks like
 
 ```
 FROM nginx
@@ -384,15 +384,15 @@ server {
 ```
 
 - It actually distributes the load with the load across the servers according to weights.
-- We should manage the resposnibility of nginx.conf to make the changes while upscaling or downscaling the containers.
+- We should manage the responsibility of nginx.conf to make the changes while upscaling or downscaling the containers.
 - But it will be difficult to scale in this scenario for dynamically scaling.
-- This all will get covered with the help of Kubernetes Dynamic Scaling.
+- This all will be covered with the help of Kubernetes Dynamic Scaling.
 
-## In Docker Compose; if our container goes donw it will not automatically start the container
+## In Docker Compose; if our container goes down it will not automatically start the container
 
 - We need to manually do it on our own.
 
-- Docker Compose is the builder of the image; and Kubernetes is the Deployerof the Image.
+- Docker Compose is the builder of the image, and Kubernetes is the Deployer of the Image.
 
 ````
 ### Important Commands to remember
@@ -402,15 +402,15 @@ sudo lsof -i -P -n | grep <Port number>
 kill <process_id>
 ```
 
-## In production we should not have a image with Privelaged Access; it should pop an error when you try to change it !
+## In production we should not have an image with Privileged Access; it should pop an error when you try to change it!
 
-## We need to maintain both the images ; we need both the base (unrestricted) image and the production(staged Filtered image) new image to debug here.
+## We need to maintain both images; we need both the base (unrestricted) image and the production(staged Filtered image) new image to debug here.
 
-- We are going to deploy only the stage and filtered image in the production but to debug a scenarios we will need to have the BASE (Unrestricted image)
+- We are going to deploy only the stage and filtered image in the production but to debug scenarios we will need to have the BASE (Unrestricted image)
 
-## Q. Why Prefer Multistage Builds ?
-- Security it provdes with the image is top notch
-- Scaling it provides is great
+## Q. Why Prefer Multistage Builds?
+- The security it provides with the image is top-notch
+The scaling it provides is great
 ````
 
 ![Alt text](image-16.png)
