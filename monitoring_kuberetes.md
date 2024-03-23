@@ -4,7 +4,7 @@
 
 - Helm is a package manager for Kubernetes applications
 
-- The Kubeernetes Resources and the Articatory resources; we can package or bundle it using the `HELM`
+- The Kubernetes Resources and the Articatory resources; we can package or bundle it using the `HELM`
 
 - It streamlines the process of installing, upgrading, and managing applications deployed on Kubernetes clusters.
 
@@ -40,24 +40,24 @@
 
 Install the Helm CLI on your local machine. Helm is available for Linux, macOS, and Windows.
 
-### 2.Create a Chart:
+### 2. Create a Chart:
 
 Create a Helm chart to define the structure and configuration of your application.
 
-### 3.Package the Chart:
+### 3. Package the Chart:
 
 Package the chart into a compressed archive (.tgz file).
 
-### 4.Install the Chart:
+### 4. Install the Chart:
 
 Install the chart on a Kubernetes cluster using the Helm CLI.
 Helm will create a release, which is an instance of a chart running on the cluster.
 
 ### 5.Upgrade and Rollback:
 
-Use Helm to upgrade or rollback releases as needed. This allows you to make changes to your application's configuration or deploy new versions.
+Use Helm to upgrade or roll back releases as needed. This allows you to make changes to your application's configuration or deploy new versions.
 
-### 6.Explore Helm Repositories:
+### 6. Explore Helm Repositories:
 
 Explore public or private Helm repositories to discover and use charts created by others.
 
@@ -95,13 +95,13 @@ helm uninstall my-release
 https://helm.sh/docs/intro/install/
 ```
 
-### Install monitoring components using helm
+### Install monitoring components using the helm
 
 ```
 # Create a Namespace "monitoring"
 kubectl create namespace monitoring
 
-# Download the repo for prometheus
+# Download the repo for Prometheus
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 
 # Update the Repo
@@ -142,9 +142,9 @@ prometheus-prometheus-kube-prometheus-prometheus-0       2/2     Running   0    
 prometheus-prometheus-node-exporter-q5xd8                1/1     Running   0          10m
 
 
-## It not only creates the Pods but also other type of resources like deloyments etc within itself like replicaset, deployments, daemonsets etc
+## It not only creates the Pods but also other type of resources like deployments etc within itself like replica set, deployments, daemon sets etc
 
-## We will expose our services for the Prometheues and Grafana
+## We will expose our services for the Prometheus and Grafana
 kubectl expose service prometheus-grafana --type=NodePort --name=grafana-lb --port=3000 --target-port=3000 -n monitoring
 kubectl expose service prometheus-kube-prometheus-prometheus --type=NodePort --name=prometheus-lb  -n monitoring
 
@@ -158,8 +158,8 @@ prometheus-lb                             NodePort    10.110.87.71     <none>   
 
 ```
 
-- Prometheus is running on the `31993` as we have not provided it the `NODE PORT` it randomly choose it from the `30000 - 32767`
-- Access it on browser using Minikube IP
+- Prometheus is running on the `31993` as we have not provided it the `NODE PORT` it randomly chooses it from the `30000 - 32767`
+- Access it on the browser using Minikube IP
 
 ```
 # TO access the minikube IP
@@ -169,7 +169,7 @@ minikube ip
 192.168.49.2
 ```
 
-### TO access the Promethues Dashboard in the Browser
+### TO access the Prometheus Dashboard in the Browser
 
 ```
 # MINIKUBE IP: NODE_PORT
@@ -181,9 +181,9 @@ minikube ip
 ![Alt text](image-25.png)
 
 - It is a 3rd Factory Product which is provided by some engineers and wee are using and releasing it; such softwares are called as `OPEN SOURCE`
-- Prometheus does NOT monitors the service/pods
-- Prometheus only monitors the `Endpoints`; we can have 1 different pods but prometheus will monitor only the endpoints.
-- For the Application to be monitored by Prometheus there needs to be certain rules which needs to be followed by the Application
+- Prometheus does NOT monitor the service/pods
+- Prometheus only monitors the `Endpoints`; we can have 1 different pod but Prometheus will monitor only the endpoints.
+- For the Application to be monitored by Prometheus there needs to be certain rules which need to be followed by the Application
 
 ```
 # Lets monitor the enpoints for the HPA then it will acts as
@@ -198,12 +198,12 @@ myapp-production-service   10.244.0.66:9000    9d
 
 ```
 
-- In the Status Dropdown => Targets we will get our Enpoints that are observed in the Prometheus.
+- In the Status Dropdown => Targets we will get our Endpoints that are observed in the Prometheus.
   ![Alt text](image-26.png)
 
 ### RUNNING GRAFANA DASHBOARD IN BROWSER
 
-- It will be same as that of the Promethus steps
+- It will be the same as that of the Prometheus steps
 - Get the NODEPORT from the service
 
 ```
@@ -217,8 +217,8 @@ NAME         TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
 grafana-lb   NodePort   10.108.102.55   <none>        3000:32352/TCP   29m
 ```
 
-- The Grafana Dashboard will run on the PORT `32352` aand can access it using the `MinikubeIP`
-- Access it in browser using the
+- The Grafana Dashboard will run on the PORT `32352` and can access it using the `MinikubeIP`
+- Access it in the browser using the
 
 ```
 # minikubeip:NODEPORT
@@ -227,7 +227,7 @@ grafana-lb   NodePort   10.108.102.55   <none>        3000:32352/TCP   29m
 ```
 
 - It will pop the Grafana Dashboard
-- Login with the creadentials like
+- Login with the credentials like
 
 ```
 username: admin
@@ -240,21 +240,21 @@ password: prom-operator / admin
 - Grafana acts as another layer that acts on Prometheus
 
 - The flow will work as
-  Application running on K8's Cluster => Prometheus monitoring the Cluster [Application that follows the rules(adherent to the rules); can only be monitored by Prometheus] => Grafana works on top of Prometheus
+  An application running on K8's Cluster => Prometheus monitoring the Cluster [Application that follows the rules(adherent to the rules); can only be monitored by Prometheus] => Grafana works on top of Prometheus
 - This can be illustrated as follows
   ![Alt text](image-28.png)
-- For Alerting we have some other layers like `OpsGenie` => responsible for getting automated the calls ; so DevOps folks can do `oncall chnages`
+- For Alerting we have some other layers like `OpsGenie` => responsible for getting automated the calls; so DevOps folks can do `on call changes`
 
 - Remember the Flow from Automated Calls to K8's Endpoints
 
 - Automated Calls[Oncall] => Dashboard of Grafana ==> Made using Prometheus metrics ==> Gets data from Endpoints ==> Endpoint is being monitored by Prometheus
 
-- The Dashboard we can have monitoring tabs on PODS, DEPLOYMENTS etc on various other resources.
-- The K8's Infrastructure and the Underlying Application will require some integrations os as to get the application metrics in the prometheus.
+- The Dashboard we can have monitoring tabs on PODS, DEPLOYMENTS, etc on various other resources.
+- The K8's Infrastructure and the Underlying Application will require some integrations os as to get the application metrics in the Prometheus.
 - The required Integrations are `Prometheus Object` and `Service Monitoring Object[SMO]`
-- The `Promethues Object is taken care by the Helm`(Helm ensures that the promethues object is made when pulling the repo)
-- `Promtheus Object` Creation is a one time task
-- The `Service Monitoring Object` needs to be created by us for underlying application.
+- The `Prometheus Object is taken care by the Helm`(Helm ensures that the Prometheus object is made when pulling the repo)
+- `Prometheus Object` Creation is a one-time task
+- The `Service Monitoring Object` needs to be created by us for the underlying application.
 - In the `SMO` Object we need to define the POD and the ENDPOINT(PORT)
 - SMO Object can keep on increasing for the UI, App-layer, DB, Nginx
 - We have it present under the file named `smon.yaml`
@@ -346,13 +346,13 @@ kubectl get pods
 
 ---
 
-### Q. IF we want to observe our system in 24\*7 environment How will we monitor in PROD?
+### Q. IF we want to observe our system in a 24\*7 environment How will we monitor in PROD?
 
-- K8 facilitates us with the logging; but the dashboard for monitroing is one thing that the dashboarding and default monitoring setup.
+- K8 facilitates us with the logging, but the dashboard for monitoring is one thing that the dashboarding and default monitoring setup.
 
-- Monitroing Setup is essential in the Production; which provides automated alerts and a tool which is able to call us based on certain pre-filled automation rules and prometheus, grafana provides us with the complete setup/picture taht is missing from Kubernetes.
+- Monitoring Setup is essential in the Production; it provides automated alerts and a tool that is able to call us based on certain pre-filled automation rules and Prometheus, grafana provide us with the complete setup/picture that is missing from Kubernetes.
 
-- So we can do the Data-Analysis on the Logs and can monitor the Logs even of the previous years.
+- So we can do the data analysis on the Logs and can monitor the Logs even of the previous years.
 
 - Kubernetes itself does not directly manage or store node-level logs; it delegates this responsibility to the underlying container runtime. Therefore, the exact location and method for accessing logs depend on the container runtime in use in your Kubernetes cluster.
 
@@ -360,12 +360,12 @@ kubectl get pods
 
 ---
 
-### What is KUBENS ?
+### What is KUBENS?
 
 - `kubens` is a command-line utility that helps you switch between Kubernetes namespaces quickly. It is part of the Kubectx project, which provides enhancements to working with Kubernetes contexts and namespaces. The Kubectx project includes two main tools: kubectx and kubens.
 
 - `kubens (Kube Namespace Switcher)`:
-  - The kubens tool simplifies the process of switching between Kubernetes namespaces.
+  - The Kubens tool simplifies the process of switching between Kubernetes namespaces.
   - It provides an easy-to-use command to list available namespaces and switch to a different namespace.
   - The primary goal is to streamline namespace-related operations, making it more convenient for users who work with multiple namespaces in Kubernetes clusters.
 
