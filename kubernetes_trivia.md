@@ -193,7 +193,7 @@ kubectl get ep
 
 ---
 
-### What happens if we delete the ALL pods which are linked to a service ?
+### What happens if we delete the ALL pods which are linked to a service?
 
 - Service will not tell us that it is broken.
 - We have to manually scavenge the Endpoints in the endpoints;
@@ -231,7 +231,7 @@ kubectl get ep
 
 - The simplest way to expose the application to the outside world.
 - It is used to connect the external user to the Nodes ==> then to the PODs
-- It would need a gateway to communicate with the Nodes and then it connects to the Nodes via IP Address / DNS Names via and then to the PODs.
+- It would need a gateway to communicate with the Nodes and then it connects to the Nodes via IP Address / DNS Names and then to the PODs.
 - Expose the service to the external world by using IP or the DNS to the external world.
 
 `Terminologies to understand in NodePort`
@@ -292,3 +292,20 @@ kubectl get ep
 - Layer 4-based routing is performed on the basis of the IP Addresses; it cannot understand the path-based routing.
 - As there is no concept of application in the Layer4
 
+### What are Admission Controllers?
+- It is an integral part of the API Server; it does not hold a separate existence such as Pods, or Deployments. 
+- They allow the resources to be Validated and Mutate as specified in the Policies
+- Used to Enforce the Security Policies, Validating and Mutating Resources
+
+Workflow for Admission Controllers:
+- We Submit a Desired State to the API Server 
+- The Admission Controller intercepts the request before saving the state into the ETCD(Current State of Cluster)
+- Can be managed using the K8 native Objects such as ValidatingWebhookConfiguration and MutatingWebhookConfiguration; 
+- ValidatingWebhookConfiguration can Validate or Reject the object created using the Predefined Rules or Agreements
+- MutatingWebhookConfigurationhas the capacity to Modify / Update Resources based on the Predefined Rules or Agreements.
+
+Admission Controllers have many Flavours such as Kyverno, KubeWarden, OPA Cloud Custodian, etc; Using any of them depends on the Requirements of Compliance that need to be met according to Org Standards. 
+
+PS: Just scratching the Surface here still need to dig in; share your thoughts regarding this.
+
+### 
