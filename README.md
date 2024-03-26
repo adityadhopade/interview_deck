@@ -9,3 +9,5 @@
 ### [Trivia about Monitoring Kubernetes](monitoring_kuberetes.md)
 ---
 ### [Trivia about Setting Up HPA](setting_up_hpa.md)
+---
+### [Trivia about K8s Scenarios](kubernetes_Scenario_Based_Questions.md)
