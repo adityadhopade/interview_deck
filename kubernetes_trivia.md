@@ -293,19 +293,36 @@ kubectl get ep
 - As there is no concept of application in the Layer4
 
 ### What are Admission Controllers?
-- It is an integral part of the API Server; it does not hold a separate existence such as Pods, or Deployments. 
+
+- It is an integral part of the API Server; it does not hold a separate existence such as Pods, or Deployments.
 - They allow the resources to be Validated and Mutate as specified in the Policies
 - Used to Enforce the Security Policies, Validating and Mutating Resources
 
 Workflow for Admission Controllers:
-- We Submit a Desired State to the API Server 
+
+- We Submit a Desired State to the API Server
 - The Admission Controller intercepts the request before saving the state into the ETCD(Current State of Cluster)
-- Can be managed using the K8 native Objects such as ValidatingWebhookConfiguration and MutatingWebhookConfiguration; 
+- Can be managed using the K8 native Objects such as ValidatingWebhookConfiguration and MutatingWebhookConfiguration;
 - ValidatingWebhookConfiguration can Validate or Reject the object created using the Predefined Rules or Agreements
 - MutatingWebhookConfigurationhas the capacity to Modify / Update Resources based on the Predefined Rules or Agreements.
 
-Admission Controllers have many Flavours such as Kyverno, KubeWarden, OPA Cloud Custodian, etc; Using any of them depends on the Requirements of Compliance that need to be met according to Org Standards. 
+Admission Controllers have many Flavours such as Kyverno, KubeWarden, OPA Cloud Custodian, etc; Using any of them depends on the Requirements of Compliance that need to be met according to Org Standards.
 
 PS: Just scratching the Surface here still need to dig in; share your thoughts regarding this.
 
-### 
+![alt text](<Admission Controllers.png>)
+
+### What are Pause Containers?
+
+- They are an integral part of every K8's Flavours (Baremetal, Managed)
+
+- Pause Containers remain running throughout the Lifecycle of Pods and they start first among all the containers within POD.
+
+- They Share the Network Namespace(providing the Sharing IP address) and Inter Process Communication Namespace(USing mechanism like System V IPC, POSIX Message Queue)
+
+👉 Benefits of using it
+
+- Pause Containers create a separate "Network Namespace" Isolation improves security and performance by reducing the amount of traffic that can flow in between PODS
+- Pause Containers is standard component of K8s; available in all flavors of K8's(Baremetal, Managed)
+  ![alt text](Pause_Containers.png)
+  ![alt text](pause_containers_2.png)
