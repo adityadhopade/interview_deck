@@ -1,4 +1,4 @@
-### This are some of the Questions which were Posted by Syed Nadeem from his Series `Devops 101`
+### This are some of the Questions which were Posted by `Syed Nadeem` from his Series `Devops 101`
 
 ---
 

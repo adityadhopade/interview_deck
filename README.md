@@ -23,3 +23,7 @@
 ---
 
 ### [Trivia about AWS Bare-basics](AWS_Interview_Questions.md)
+
+---
+
+### [Trivia about K8s Scenarios](kubernetes_Scenario_Based_Questions.md)
