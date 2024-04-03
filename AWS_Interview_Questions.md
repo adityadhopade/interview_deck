@@ -155,3 +155,87 @@ eg 172.8.10.12/15
 ### What is DNS ?
 
 - DNS porvides mapping of the URL to the corresponding IP Address.
+
+---
+
+## Miscellaneous
+
+---
+
+### What is the difference between stopping and termintaing the Ec2 instance?
+
+- Stopping the Ec2 instances will change the IP Addresses; but it will not be removed from the AWS Console
+- Terminating the AWS Resources will delete the instance from the AWS Console also.
+
+### Can we add an Existing Instance into the Autoscaling Group ?
+
+- YES, Attach Instance => Select Instance
+
+### Cloud Watch vs Cloud Trail
+
+- `Cloud Watch` => used for monitoring and logging analysis purpose of the application;
+- `Cloud Trails` => USed for the auditing the services and the Users for the Compliance Purpose; Trails allow to capture activity and deliver to cold storage.
+
+### Reserved Instance VS On Demand Instance
+
+- `Reserved Instances` they are used or the longterm purpose (1 to 3 Years); so they are provided at a discount; payment method can be all upfront, patial upfront or no upfront at all.
+- `On Demand Instances` they are used for shoreter interval of time; No Long Term Commitment; PAY AS YOU USE;
+
+### Which type of scaling is recommended for RDS?
+
+- Types are `Vertical` and `Horizontal` Scaling
+- Vertical => When the Workload is moderate; there is predicatbility in workload pattern; requires modest performance then we can go for the vertical scaling (Increase the CPU and Memory)
+- Horizontal => When the Worload are extereme; no predicatbility in the workload pattern; requires Concurrencyto achieve HA, Fault Tolerance and scalability use Horizontal Scaling (Increase the count of replicas)
+
+### What is maintainace window in RDS ? Can we access the RDS inatcne in the maintainanace window?
+
+- Maintainance window in RDS can be due to the S/W patching, Hardware Upgradation, Engine Upgrades other routine checks for the Hardware and health and relaibility.
+- We can acess the RDS instances during the maintainance window if and only if they are Fault Tolerant i.e. they are replicated in the various Avalability Zones.
+
+### What are Different types of LB in AWS?
+
+- Classic LB(Deprecated)
+- Application Load Balancer (Widely used in MicroService Applications)
+- Network Load Balancers (Widely usd for the High Throughput Applications such as Gaming Applications)
+- Gatway Load Balancers (Used for Migrationg Onpremise to the AWS Cloud)
+
+- `ALB` => Operates at Layer 7 of OSI (Application Layer); Supports HTTP and HTTPS Traffic; USed for MS applications; It understands `Paths` and `Host Headers`.
+
+- `NLB` => Operates at Layer 4 of OSI (Transport layer); Supports the TCP and UDP Connections; Supports the High latecy applications such as Gaming Applications.
+
+### Explain the steps to setup VPC with subnets and Everyting?
+
+- Add the CIDR Range (To get the PRivate IP Ranges)
+- Create `Subnets` with the `Private` and the `Public` Subnet.
+- The Applications are put under the `Private Subnets` and they are connected to the `NAT gateway` inturn connects to the `Internet Gateway`; For Applications requring the Internet Connction.
+- The `LoadBalancers` , `NAT Gateway`, `Internet Gateway` and the `JumpServers(Bastion Host)` they are put onto the `Public Subnets`
+- Setup the `NACLs` for securing the Access to `Subnet Level` also adding the `Security Group` for securing the Access to the `Instance`.
+- Enable the monitoring => Enable the `VPC Flow Logs` and monirtor it using the `Cloudwatch`.
+
+### In the case of the AWS Pipeline how can we secure the API KEYS and the Secrets , other credentails ?
+
+- In AWS CICD PIpeline we can use the `CodeBuild` , `Codepipeline`, `CodeCommit`.
+- TO secure the credential of the pipeline we can use the `AWS KMS` or `AWS Secret manager` or `AWS Parameter Store`.
+- These services can also be used to `Rotate the secrets` and give access to CICD Services.
+- Further we can enable the `CloudTrail` for auditing the user's interaction with the server.
+
+### What are some of the services which are not region specific?
+
+- `AWS IAM` , `AWS CloudFront`, `AWS Route53`
+
+### When to use the EC2 and Lambda ?
+
+- When we want to run some servers(Web servers , db servers) then we can make use of the `EC2 instance.`
+- We want to run some process fro a very short amount of time consuming less resources and without managing the servers
+- `Lambda` are event driven; short lived with automatic scaling.
+
+### Cloud Fromation has an error in template that you have committed; what could happen as tghe result of error; how would you correct it?
+
+- If we have commited it but it has caused errors so it will not create the Infrastructure ; and will not run.
+
+```
+Stacks in AWS ~ Infrastruture Code in Terraform
+Stacks can be managed as a Single unit
+
+Template in Cloud Formation is same as Template Written in the `YAML or JSON`
+```

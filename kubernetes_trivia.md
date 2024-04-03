@@ -326,3 +326,9 @@ PS: Just scratching the Surface here still need to dig in; share your thoughts r
 - Pause Containers is standard component of K8s; available in all flavors of K8's(Baremetal, Managed)
   ![alt text](Pause_Containers.png)
   ![alt text](pause_containers_2.png)
+
+---
+
+## EKS
+
+###
