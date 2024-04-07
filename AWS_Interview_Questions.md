@@ -239,3 +239,131 @@ Stacks can be managed as a Single unit
 
 Template in Cloud Formation is same as Template Written in the `YAML or JSON`
 ```
+
+### HOw can we disable the EC2 Instance Public IP Address?
+
+- Disable the `Auto-assign Public IP:`
+
+### I have an on prem data center and want private connectivity between AWS network to on premise Datacenter. How to configure it and which services
+
+- It can use the `AWS Services` like `AWS Direct Connect` and `AWS VPN`
+- `AWS Direct Connect` => It establishes a Private Connection; `NOT on the Internet Connections`.
+- `AWS VPN` => It establishes a Private Connection; `On the Internet Connections`.
+
+### If IP of VPC OR subnet IP range got occupy by all server then what action do we need to perform?
+
+- SO what we need here to do is that
+- 1. Expand the `Subnet Size`: This might involve adjusting the CIDR (Classless Inter-Domain Routing) block associated with the subnet.
+
+- 2. Add `Additional Subnets`: If expanding the existing subnet is not feasible or if you need to segregate resources, create additional subnets within the VPC.
+
+- 3. Implement `Elastic IP Addresses` :Instead of statically assigning IPs from the subnet pool. EIPs can be associated and disassociated from instances as needed, allowing for more efficient IP address utilization.
+
+- 4. Maybe consider using `IPV6`: If IPv6 is an option for your infrastructure, consider implementing it to significantly expand the available IP address space.
+
+### Explain the purpose of a VPC's route tables. How are they associated with subnets?
+
+- The purpose of a Virtual Private Cloud (VPC)'s route tables is to control the routing of network traffic within the VPC. Route tables determine where network traffic is directed based on its destination IP address. They essentially act as a set of rules that guide the traffic flow within the VPC.
+
+### What is a Virtual Private Network (VPN) connection in the context of AWS VPC? How does it differ from Direct Connect?
+
+- AWS VPC allows you to connect the `On Premise DataCenters` to `AWS VPC`; It establishes an encrypted tunnel between your network and the VPC, allowing secure communication between resources in your VPC and your on-premises infrastructure.
+
+- AWS VPN allows you to create a private connection; `with Internet Connection`.
+- AWS Direct Connection you to create a private connection; `without Internet Connection`
+
+### What is VPC Flow Logs, and why would you enable them?
+
+- `VPC FLOW LOGS`: They are IP traffic going to and from network interfaces in your VPC.
+- It can be better used with the monitoring tools such as `AWS Cloud Watch`and further interact with the `AWS CloudTrail`
+
+### Describe the process of migrating an EC2 instance from one VPC to another ?
+
+- Prepare the target VPC with necessary resources.
+- Prepare the EC2 instance for migration.
+- Create an AMI of the EC2 instance.
+- Copy the AMI to the target region if needed.
+- Launch a new instance in the target VPC using the AMI.
+- Update DNS records and application configurations if applicable.
+- Test and validate the new instance's functionality.
+- Monitor the new instance and decommission the source instance once migration is successful.
+
+### What if the PEM file is not present then how can we connect to the EC2 instance?
+
+- Use `AWS Systems manager` ==> `Session Manager` : Session manager actually uses the IAM Permissions for conecting to EC2 insatnce.
+- Use `EC2 Snapshot Instance` ==> If we have the EC2 snapshot instance of the `Root Rolume`; then create a `new volume` from this and attach it to the new instance.
+
+### EBS vs S3 vs EFS
+
+| Feature           | EBS (Elastic Block Store)                                    | S3 (Simple Storage Service)                                  | EFS (Elastic File System)                                                 |
+| ----------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------------------- |
+| Storage Type      | Block-level storage volumes                                  | Object storage                                               | File storage                                                              |
+| Protocol          | N/A                                                          | N/A                                                          | NFS (Network File System)                                                 |
+| Accessibility     | Attached to single EC2 instance at a time                    | Accessible via unique URLs                                   | Accessible by multiple EC2 instances concurrently                         |
+| Durability        | Replicated within an Availability Zone                       | Highly durable across multiple Availability Zones            | Highly durable across multiple Availability Zones                         |
+| Scalability       | Scales with instance type, can be manually resized           | Infinitely scalable                                          | Automatically scales based on demand                                      |
+| Use Cases         | Database storage, boot volumes, file systems                 | Static website hosting, data archiving, content distribution | Content management systems, development environments, analytics workloads |
+| Backup/Recovery   | Snapshots                                                    | Versioning and Cross-Region Replication                      | Automated backups and point-in-time recovery                              |
+| Performance       | Low-latency access, provisioned IOPS available               | Designed for low-latency access at scale                     | Burstable performance with automatic scaling                              |
+| Pricing Model     | Pay for provisioned storage, provisioned IOPS, and snapshots | Pay for storage used, requests, and data transfer            | Pay for storage used                                                      |
+| Access Management | IAM roles and policies                                       | Bucket policies and IAM policies                             | POSIX permissions and IAM policies                                        |
+
+### You want to store temporary data on an EC2 instance. Which storage option is ideal for this purpose?
+
+- The default storage for the EC2 instance is `EBS`
+- If we want to have the temporary usage then we can take care of it using the ` instance local storage` typically provided by `instance store volumes.`; they are ephemeral storage directly attached to EC2 instance; didnt get persisted beyond the lifetime of the instance.
+
+### If my RDS is running out of space how will you resolve that without launching other RDS?
+
+- Can enable the `AutoScaling Feature` in AWS for AWS RDS.
+- Further we can make the unused / unnsesasary data cleanup (old logs, temporary tables, or outdated records) it would free up more data in RDS
+- ` Manually increase the allocated storage`; do this through AWS Console , CLI or SDK.
+- Take a snapshot of your RDS instance and restore it to a new instance with `larger storage capacity.`
+
+### How will you take backups using Lambda?
+
+```
+import boto3
+import datetime
+
+def lambda_handler(event, context):
+    # Initialize AWS SDK clients
+    rds_client = boto3.client('rds')
+    ec2_client = boto3.client('ec2')
+
+    # Define the list of RDS instances and EC2 instances to backup
+    rds_instances = ['your-rds-instance-id']
+    ec2_instances = ['your-ec2-instance-id']
+
+    # Create RDS snapshots
+    for instance_id in rds_instances:
+        try:
+            snapshot_id = 'rds-snapshot-' + instance_id + '-' + datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+            rds_client.create_db_snapshot(DBSnapshotIdentifier=snapshot_id, DBInstanceIdentifier=instance_id)
+            print(f"Snapshot created for RDS instance {instance_id}: {snapshot_id}")
+        except Exception as e:
+            print(f"Error creating snapshot for RDS instance {instance_id}: {str(e)}")
+
+    # Create EBS snapshots
+    for instance_id in ec2_instances:
+        try:
+            volumes = ec2_client.describe_volumes(Filters=[{'Name': 'attachment.instance-id', 'Values': [instance_id]}])['Volumes']
+            for volume in volumes:
+                snapshot_id = 'ebs-snapshot-' + volume['VolumeId'] + '-' + datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+                ec2_client.create_snapshot(VolumeId=volume['VolumeId'], Description=snapshot_id)
+                print(f"Snapshot created for EBS volume {volume['VolumeId']}: {snapshot_id}")
+        except Exception as e:
+            print(f"Error creating snapshot for EC2 instance {instance_id}: {str(e)}")
+
+    return {
+        'statusCode': 200,
+        'body': 'Backup process completed successfully.'
+    }
+
+```
+
+### What is VPC Peering ?
+
+- It is the network connection between the two VPC's it acts as the private Connection and VPCs can connect to each other as if they are part of the Same Network in the Same Region.
+- VPC peering enables you to `connect VPCs belonging to the same AWS account or different AWS accounts`, **`as long as they are in the same region`**
+- Overall, the aim of VPC peering is to enable `secure` and `efficient` communication between resources in different VPCs within the `same AWS region`, thereby facilitating the building of complex, multi-tiered architectures and enabling collaboration between different applications and environments.
