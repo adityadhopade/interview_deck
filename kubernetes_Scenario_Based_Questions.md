@@ -296,4 +296,26 @@ SSH output
 ```
 
 - These events are tracked using syscalls like connect, execve, read etc. When an SSH event occurs, SSHLog records the event in a log file.
--
+---
+(Scenario Credits - Mayank Jadhav)
+I recently noticed that our K8s cluster contains several unused PVCs. They were around "194" when I listed them, and I have to delete those.
+
+I noticed that the PVC that needed to be deleted included the prefix "pvc-COUNTRY_ISO," in it's name like "pvc-fr," "pvc-in," "pvc-hk," "pvc-cn," and "pvc-gb."
+
+To remove those PVCs, I used the kubectl cli and a few Linux tools like grep and awk.
+
+This is the command I executed:
+```
+kubectl get pvc -n NAMESPACE_NAME | grep -E '^pv-gb|^pv-fr|^pv-cn|^pv-in' | awk '{print $1}' | xargs kubectl delete pvc -n NAMESPACE_NAME
+```
+
+If I breakdown the command then -
+1. `kubectl get pvc -n NAMESPACE_NAME` -> Will list all the PVC's of the particular namespace which includes information such as PVC name, status, capacity, and associated persistent volume (PV).
+
+2. `grep -E '^pv-gb|^pv-fr|^pv-cn|^pv-in'` -> Filters the output to only include PVCs whose names start with "pv-gb", "pv-fr", "pv-cn", or "pv-in".
+
+3. `awk '{print $1}'` -> Extracts only the first field (PVC name) from each filtered line and prints it.
+
+4.` xargs kubectl delete pvc -n NAMESPACE_NAME` -> Takes the list of PVC names from the previous step as input and deletes the specified PVC within the given namespace.
+
+You can alter and utilise this command if you need to perform a similar type of task for pods, PVs, secrets, configmaps, cronjobs, etc.
