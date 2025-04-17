@@ -116,3 +116,34 @@ terraform workspace select <workspace_name>
 
 - Use `target` flag in tf command; it will mark that resource and recreate.
 - OR WE can use the `terraform taint` but should be careful
+
+
+### What happens if your state file is accidentally deleted?
+Terraform loses track of managed infrastructure. On next apply, it attempts to recreate everything, causing duplicates or failures. Recovery requires manual imports or restoring backups. Always enable versioning on S3 state storage.
+
+### How do you handle large-scale refactoring without downtime?
+Use "terraform state mv" to rename resources without destroying them. Control changes with targeted applies. Split refactoring into multiple non-destructive PRs and verify plans carefully to prevent resource destruction.
+
+### What happens if a resource fails halfway through a terraform apply?
+Answer: Terraform creates a partial deployment with successful resources running but failed ones marked as tainted. Use targeted applies and "-refresh-only" to recover systematically.
+
+### How do you manage secrets in Terraform?
+Use external secret stores (Vault, AWS Secrets Manager), ensure state encryption, mark outputs as sensitive, and integrate securely with CI/CD. For highly sensitive values, consider managing them outside Terraform completely.
+
+### What happens if terraform plan shows no changes but infrastructure was modified outside Terraform?
+Terraform remains unaware until "terraform refresh" is run. Implement regular drift detection in your CI/CD process to catch unauthorized changes.
+
+### What happens if you delete a resource definition from your configuration?
+Terraform destroys the corresponding infrastructure. Either use "terraform state rm" first or implement "lifecycle { prevent_destroy = true }" for critical resources.
+
+### What happens if Terraform provider APIs change between versions?
+Compatibility issues may arise. Always read release notes, use version constraints, test upgrades in lower environments, and consider targeted updates for gradual migration.
+
+### How do you implement zero-downtime infrastructure updates?
+Use "create_before_destroy" lifecycle blocks, blue-green deployments, health checks, and state manipulation for complex scenarios. For databases, use replicas or managed services with failover capabilities.
+
+### What happens if you have circular dependencies in your Terraform modules?
+Terraform fails with "dependency cycle" errors. Refactor module structure using data sources, outputs, or restructuring resources to establish clear dependency hierarchy.
+
+### What happens if you rename a resource in your Terraform code?
+Terraform sees this as destroying and recreating the resource. Use "terraform state mv" to update state while preserving infrastructure, avoiding rebuilds and downtime.
